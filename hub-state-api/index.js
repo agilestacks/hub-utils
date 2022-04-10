@@ -37,10 +37,17 @@ functions.http('stacks', async (req, res) => {
       }
       break
     case 'DELETE':
-      await deleteByID(id, superhubs)
-      res
-        .status(202)
-        .send("") 
+      stack = await stackByID(id, superhubs, false)
+      if (stack) {
+        await deleteByID(id, superhubs)
+        res
+          .status(202)
+          .send("") 
+      } else {
+        res
+          .status(404)
+          .send("") 
+      }
       break
     default:
       res
@@ -50,13 +57,13 @@ functions.http('stacks', async (req, res) => {
 });
 
 function filter(stacks, query) {
-  let filtered = query.kind ? stacks.filter(stack => stack.kind.includes(query.kind)) : stacks 
-  filtered = query['latestOperation.status'] ? 
-    filtered.filter(stack => stack.latestOperation.status.includes(query['latestOperation.status'])) : filtered
+  let filtered = query.name ? stacks.filter(stack => stack.name.toLowerCase().includes(query.name.toLowerCase())) : stacks 
+  filtered = query['status'] ? 
+    filtered.filter(stack => stack.status.toLowerCase() === query['status'].toLowerCase()) : filtered
   filtered = query['latestOperation.name'] ? 
-    filtered.filter(stack => stack.latestOperation.name === query['latestOperation.name']) : filtered  
+    filtered.filter(stack => stack.latestOperation.name.toLowerCase() === query['latestOperation.name'].toLowerCase()) : filtered  
   filtered = query['latestOperation.initiator'] ? 
-    filtered.filter(stack => stack.latestOperation.initiator.includes(query['latestOperation.initiator'])) : filtered
+    filtered.filter(stack => stack.latestOperation.initiator.toLowerCase().includes(query['latestOperation.initiator'].toLowerCase())) : filtered
   if (query['latestOperation.timestamp']) {
     const before = query['latestOperation.timestamp'].before
     if (before) {
@@ -127,9 +134,7 @@ async function allStacks(buckets) {
   console.log('Average: '+time/states.length+' seconds per file')
   stacks = []
   states.forEach(state => {
-    if (state.length < 5000) {
-      stacks.push(stackMeta(YAML.load(state), true))
-    }
+    stacks.push(stackMeta(YAML.load(state), true))
   })
   stacks.sort((x,y) => new Date(y.latestOperation.timestamp) - new Date(x.latestOperation.timestamp))
   return stacks

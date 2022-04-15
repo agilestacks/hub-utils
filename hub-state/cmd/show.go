@@ -46,7 +46,7 @@ func show(cmd *cobra.Command, args []string) {
 			fmt.Println()
 			return
 		}
-		println(pretty.String())
+		fmt.Println(pretty.String())
 		return
 	}
 	var state State

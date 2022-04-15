@@ -55,7 +55,7 @@ func ls(cmd *cobra.Command, args []string) {
 			fmt.Println("Nothing has been found")
 			return
 		}
-		println(pretty.String())
+		fmt.Println(pretty.String())
 		return
 	}
 	var states []State

@@ -2,6 +2,10 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
+	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -46,8 +50,30 @@ func Execute() {
 }
 
 func init() {
-	stateCmd.PersistentFlags().StringVarP(&Project, "project", "p", "superhub", "GCP Project ID")
 	stateCmd.PersistentFlags().StringVarP(&StateAPILocation, "stateAPILocation", "l", "us-central1", "Location of State API endpoint")
 	stateCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "Verbose")
 	stateCmd.PersistentFlags().VarP(&Out, "output", "o", "Output format. Must be one of [table, json]")
+
+	//Discover Project ID
+	//From flag
+	stateCmd.PersistentFlags().StringVarP(&Project, "project", "p", "", "GCP Project ID")
+	if Project != "" {
+		return
+	}
+	//From env variable
+	Project = os.Getenv("GOOGLE_PROJECT")
+	if Project != "" {
+		return
+	}
+	//From gcloud config
+	cmd := exec.Command("bash", "-c", "gcloud config get project")
+	stdout, _ := cmd.Output()
+	Project = strings.TrimSuffix(string(stdout), "\n")
+	if Project == "" {
+		fmt.Println("GCP Project ID is not set. Please do one of the following:")
+		fmt.Println("* re-run the command with --project flag")
+		fmt.Println("* set GOOGLE_PROJECT env variable")
+		fmt.Println("* set the Project ID using `gcloud config set project <project-id>` command")
+		os.Exit(1)
+	}
 }

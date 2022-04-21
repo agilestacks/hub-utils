@@ -33,7 +33,7 @@ func show(cmd *cobra.Command, args []string) {
 		fmt.Println()
 		return
 	}
-	if resp.StatusCode() == 404 {
+	if resp.StatusCode() == 404 && Out != JsonO {
 		fmt.Printf("Error: Stack [%s] has not been found", args[0])
 		fmt.Println()
 		return
@@ -42,8 +42,6 @@ func show(cmd *cobra.Command, args []string) {
 		var pretty bytes.Buffer
 		err = json.Indent(&pretty, resp.Body(), "", "\t")
 		if err != nil {
-			fmt.Printf("Error: Stack [%s] has not been found", args[0])
-			fmt.Println()
 			return
 		}
 		fmt.Println(pretty.String())

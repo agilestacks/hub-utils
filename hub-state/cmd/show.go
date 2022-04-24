@@ -24,6 +24,9 @@ var showCmd = &cobra.Command{
 }
 
 func show(cmd *cobra.Command, args []string) {
+	if Project == "" {
+		altProjectSources()
+	}
 	base := BaseURL(StateAPILocation, Project)
 	client := resty.New()
 	resp, err := client.R().

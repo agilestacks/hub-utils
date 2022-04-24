@@ -28,6 +28,9 @@ var lsCmd = &cobra.Command{
 }
 
 func ls(cmd *cobra.Command, args []string) {
+	if Project == "" {
+		altProjectSources()
+	}
 	base := BaseURL(StateAPILocation, Project)
 	filterQuery := make(map[string]string, 0)
 	for _, param := range stackFilter {

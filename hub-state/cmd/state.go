@@ -53,20 +53,15 @@ func init() {
 	stateCmd.PersistentFlags().StringVarP(&StateAPILocation, "stateAPILocation", "l", "us-central1", "Location of State API endpoint")
 	stateCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "Verbose")
 	stateCmd.PersistentFlags().VarP(&Out, "output", "o", "Output format. Must be one of [table, json]")
-
-	//Discover Project ID
-	//From flag
 	stateCmd.PersistentFlags().StringVarP(&Project, "project", "p", "", "GCP Project ID")
-	if Project != "" {
-		return
-	}
-	//From env variable
+}
+
+func altProjectSources() {
 	Project = os.Getenv("GOOGLE_PROJECT")
 	if Project != "" {
 		return
 	}
-	//From gcloud config
-	cmd := exec.Command("bash", "-c", "gcloud config get project")
+	cmd := exec.Command("gcloud", "config", "get-value", "core/project")
 	stdout, _ := cmd.Output()
 	Project = strings.TrimSuffix(string(stdout), "\n")
 	if Project == "" {

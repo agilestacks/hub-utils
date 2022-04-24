@@ -22,6 +22,9 @@ var rmCmd = &cobra.Command{
 }
 
 func rm(cmd *cobra.Command, args []string) {
+	if Project == "" {
+		altProjectSources()
+	}
 	fmt.Printf("Do you really want to remove the remote state of the stack [%s]? (type Y or Yes) ", args[0])
 	reader := bufio.NewReader(os.Stdin)
 	text, _ := reader.ReadString('\n')

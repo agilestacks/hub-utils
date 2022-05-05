@@ -1,6 +1,6 @@
 # Hub State API
 
-GCP function backend for [hub-state-api](../hub-state-api/) to manage states.
+GCP function backend for [hub-state-api](../api/) to manage states.
 
 ## Build
 

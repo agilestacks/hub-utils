@@ -1,12 +1,12 @@
 {
-  "name": "nodejs-docs-samples-functions-hello-world",
+  "name": "hub-state-api",
   "version": "0.0.1",
   "private": true,
   "license": "Apache-2.0",
-  "author": "Google Inc.",
+  "author": "SuperHub Inc.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/GoogleCloudPlatform/nodejs-docs-samples.git"
+    "url": "https://github.com/agilestacks/hub-state.git"
   },
   "engines": {
     "node": ">=12.0.0"
@@ -25,6 +25,7 @@
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "node-gzip": "^1.1.2",
+    "request": "^2.88.2",
     "unzipper": "^0.10.11",
     "yamljs": "^0.3.0",
     "zlib": "^1.0.5"

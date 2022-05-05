@@ -5,8 +5,8 @@ on:
     branches:
       - "master"
     paths:
-      - "hub-state-api/index.js"
-      - "hub-state-api/package*.json"
+      - "api/index.js"
+      - "api/package*.json"
 
 jobs:
   deploy:
@@ -31,7 +31,8 @@ jobs:
         with:
           name: "stacks"
           runtime: "nodejs16"
-          source_dir: "./hub-state-api"
+          source_dir: "./api"
+          memory_mb: 4096
 
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v0"

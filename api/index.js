@@ -2,11 +2,45 @@ const functions = require('@google-cloud/functions-framework');
 const { Storage } = require('@google-cloud/storage');
 const { ungzip } = require('node-gzip');
 const YAML = require('js-yaml');
-const {pick} = require('lodash');
+const request = require('request');
 
 const storage = new Storage()
 
-functions.http('stacks', async (req, res) => {
+exports.reporting = async (file, context) => {
+  if (context.eventType !== 'google.storage.object.finalize') {
+    return 
+  }
+  if (!file.name.includes('hub.state')) {
+    return
+  }
+  const superhubs = await superhubBuckets()
+  const stack = await stackByID(file.name, superhubs, false)
+  let reportingEndpoint = 'https://us-central1-superhub.cloudfunctions.net/event'
+  if (process.env.REPORTING_URL) {
+    reportingEndpoint = process.env.REPORTING_URL
+  }
+  const payload = {
+    stackId: stack.id,
+    name: stack.name,
+    status: stack.status,
+    initiator: stack.latestOperation ? stack.latestOperation.initiator : 'unknown',
+    project: stack.projectId,
+    gcpUserAccount: stack.userAccount
+  }
+  request({
+    url: reportingEndpoint,
+    method: 'POST',
+    json: payload
+  }, function(error, response, body){
+    if (response.statusCode = 200) {
+      console.log(`Payload ${JSON.stringify(payload)} posted to ${reportingEndpoint}` )
+    } else if (error) {
+      console.log(error)
+    }
+  });
+};
+
+exports.stacks = async (req, res) => {
   const superhubs = await superhubBuckets()
   const id = stackID(req.path)
   switch (req.method) {
@@ -54,7 +88,7 @@ functions.http('stacks', async (req, res) => {
         .status(400)
         .send("Sorry, not supported") 
   }
-});
+};
 
 function filter(stacks, query) {
   let filtered = query.name ? stacks.filter(stack => stack.name.toLowerCase().includes(query.name.toLowerCase())) : stacks 
@@ -162,11 +196,21 @@ function stackMeta(yaml, light) {
   let dnsDomainParam = {
     value: 'unset'
   }
+  let projectId = {
+    value: 'unset'
+  }
+  let userAccount = {
+    value: 'unset'
+  }
   if (yaml.stackParameters) {
     dnsDomainParam = yaml.stackParameters.find(param => param.name === 'dns.domain') || dnsDomainParam
+    projectId = yaml.stackParameters.find(param => param.name === 'projectId') || projectId
+    userAccount = yaml.stackParameters.find(param => param.name === 'hub.userAccount') || userAccount
   }
   const meta = {
     id: dnsDomainParam.value,
+    projectId: projectId.value,
+    userAccount: userAccount.value,
     name: yaml.meta.name,
     stateLocation: {
       uri: stateLocation,

@@ -1,0 +1,45 @@
+---
+version: 1
+kind: component
+meta:
+  name: state-event-function
+  source:
+      dir: server
+
+parameters:
+- name: region
+  value: us-central1
+  env: REGION
+- name: projectId
+  env: PROJECT
+
+- name: component.stateEventFunction
+  parameters:
+  - name: name
+    value: event
+    env: NAME
+  - name: entryPoint
+    value: ${component.stateEventFunction.name}
+    env: ENTRY_POINT
+  - name: dbName
+    value: reporting
+    env: DB_NAME
+  - name: dbUser
+    value: postgres
+    env: DB_USER
+  - name: dbInstanceConnectionName
+    brief: |
+      This can be found on the Overview page for your instance in the Google Cloud console. 
+      or by running the following command: gcloud sql instances describe INSTANCE_NAME.
+    value: superhub:us-central1:superhub-events
+    env: INSTANCE_CONNECTION_NAME  
+  - name: dbPasswordSecretName
+    brief: |
+      Name of the secret holding database password in GCP Secret Manager
+    value: stateDBPassword
+    env: CLOUD_SQL_CREDENTIALS_SECRET
+
+outputs:
+  - name: component.stateEventFunction.url
+    value: https://${region}-${projectId}.cloudfunctions.net/${component.stateEventFunction.entryPoint}
+    

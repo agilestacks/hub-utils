@@ -6,7 +6,9 @@
 
 ```shell
 hub state ls
-hub state show
+hub state ls --filter="latestOperation.timestamp[after]=2022-05-19,status=incomplete,initiator=akranga"
+hub state ls --filter="latestOperation.timestamp[before]=2022-05-19"
+hub state show <sandbox id>
 ```
 
 ## Build
@@ -20,3 +22,4 @@ go build -o bin/hub-state main.go
 ```shell
 go run main.go
 ```
+

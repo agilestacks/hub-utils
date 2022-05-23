@@ -36,9 +36,12 @@ func ls(cmd *cobra.Command, args []string) {
 	for _, param := range stackFilter {
 		vals := strings.Split(param, "=")
 		if len(vals) == 2 {
-			key := strings.ToLower(vals[0])
-			if key == "initiator" {
-				key = "latestOperation.initiator"
+			key := vals[0]
+			if !strings.HasPrefix(key, "latestOperation") {
+				key = strings.ToLower(vals[0])
+				if key == "initiator" {
+					key = "latestOperation.initiator"
+				}
 			}
 			filterQuery[key] = vals[1]
 		}

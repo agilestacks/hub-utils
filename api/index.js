@@ -8,7 +8,7 @@ const storage = new Storage()
 
 exports.reporting = async (file, context) => {
   if (context.eventType !== 'google.storage.object.finalize') {
-    return 
+    return
   }
   if (!file.name.includes('hub.state')) {
     return
@@ -76,27 +76,27 @@ exports.stacks = async (req, res) => {
         await deleteByID(id, superhubs)
         res
           .status(202)
-          .send("") 
+          .send("")
       } else {
         res
           .status(404)
-          .send("") 
+          .send("")
       }
       break
     default:
       res
         .status(400)
-        .send("Sorry, not supported") 
+        .send("Sorry, not supported")
   }
 };
 
 function filter(stacks, query) {
-  let filtered = query.name ? stacks.filter(stack => stack.name.toLowerCase().includes(query.name.toLowerCase())) : stacks 
-  filtered = query['status'] ? 
+  let filtered = query.name ? stacks.filter(stack => stack.name.toLowerCase().includes(query.name.toLowerCase())) : stacks
+  filtered = query['status'] ?
     filtered.filter(stack => stack.status.toLowerCase() === query['status'].toLowerCase()) : filtered
-  filtered = query['latestOperation.name'] ? 
-    filtered.filter(stack => stack.latestOperation.name.toLowerCase() === query['latestOperation.name'].toLowerCase()) : filtered  
-  filtered = query['latestOperation.initiator'] ? 
+  filtered = query['latestOperation.name'] ?
+    filtered.filter(stack => stack.latestOperation.name.toLowerCase() === query['latestOperation.name'].toLowerCase()) : filtered
+  filtered = query['latestOperation.initiator'] ?
     filtered.filter(stack => stack.latestOperation.initiator.toLowerCase().includes(query['latestOperation.initiator'].toLowerCase())) : filtered
   if (query['latestOperation.timestamp']) {
     const before = query['latestOperation.timestamp'].before
@@ -115,7 +115,7 @@ function filter(stacks, query) {
         filtered = filtered.filter(stack => new Date(stack.latestOperation.timestamp) >= dtAfter)
       }
     }
-  }          
+  }
   return filtered
 }
 
@@ -145,7 +145,7 @@ async function stackByID(id, buckets, raw) {
   }
   if (!stateFileMeta) {
     return null
-  } 
+  }
   const states = await allStates([stateFileMeta])
   if (raw) {
     return YAML.load(states[0].toString())
@@ -191,7 +191,7 @@ function stackMeta(yaml, light) {
     const locations = stateArg.split(',')
     if (locations.length === 2) {
       stateLocation = locations[1]
-    } 
+    }
   }
   let dnsDomainParam = {
     value: 'unset'
@@ -202,10 +202,18 @@ function stackMeta(yaml, light) {
   let userAccount = {
     value: 'unset'
   }
+  let sandboxDir = {
+    value: 'unset'
+  }
+  let sandboxCommit = {
+    value: 'unset'
+  }
   if (yaml.stackParameters) {
     dnsDomainParam = yaml.stackParameters.find(param => param.name === 'dns.domain') || dnsDomainParam
     projectId = yaml.stackParameters.find(param => param.name === 'projectId') || projectId
     userAccount = yaml.stackParameters.find(param => param.name === 'hub.userAccount') || userAccount
+    sandboxDir = yaml.stackParameters.find(param => param.name === 'hub.sandboxDir') || sandboxDir
+    sandboxCommit = yaml.stackParameters.find(param => param.name === 'hub.sandboxCommit') || sandboxCommit
   }
   const meta = {
     id: dnsDomainParam.value,
@@ -216,19 +224,23 @@ function stackMeta(yaml, light) {
       uri: stateLocation,
       kind: 'gcs'
     },
+    sandbox: {
+      dir: sandboxDir.value,
+      commit: sandboxCommit.value
+    },
     status: yaml.status,
     components: light ? undefined: Object.keys(yaml.components).map(key => {
       return {
-          name: key, 
+          name: key,
           status: yaml.components[key].status,
           timestamp: yaml.components[key].timestamp
         }
       }
     ),
     latestOperation: {
-      name: last.operation, 
+      name: last.operation,
       timestamp: last.timestamp,
-      status: last.status, 
+      status: last.status,
       initiator: last.initiator,
       phases: last.phases
     }
@@ -245,7 +257,7 @@ async function allStates(stateFileMetas) {
 }
 
 function stateFile(file) {
-  return new Promise((resolve, reject) => { 
+  return new Promise((resolve, reject) => {
     let data = []
     file.createReadStream()
       .on('data', d => {

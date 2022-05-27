@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -65,10 +66,16 @@ func altProjectSources() {
 	stdout, _ := cmd.Output()
 	Project = strings.TrimSuffix(string(stdout), "\n")
 	if Project == "" {
-		fmt.Println("GCP Project ID is not set. Please do one of the following:")
-		fmt.Println("* re-run the command with --project flag")
-		fmt.Println("* set GOOGLE_PROJECT env variable")
-		fmt.Println("* set the Project ID using `gcloud config set project <project-id>` command")
+		if Out == JsonO {
+			err := map[string]string{"error": "GCP Project ID is not set"}
+			msg, _ := json.Marshal(err)
+			fmt.Println(string(msg))
+		} else {
+			fmt.Println("GCP Project ID is not set. Please do one of the following:")
+			fmt.Println("* re-run the command with --project flag")
+			fmt.Println("* set GOOGLE_PROJECT env variable")
+			fmt.Println("* set the Project ID using `gcloud config set project <project-id>` command")
+		}
 		os.Exit(1)
 	}
 }

@@ -200,7 +200,7 @@ function stackMeta(yaml, light) {
     value: 'unset'
   }
   let userAccount = {
-    value: 'unset'
+    value: last.initiator || 'unset'
   }
   let sandboxDir = {
     value: 'unset'
@@ -253,7 +253,7 @@ function stackMeta(yaml, light) {
       name: last.operation,
       timestamp: last.timestamp,
       status: last.status,
-      initiator: last.initiator,
+      initiator: userAccount.value, // by default value is last.initiator
       phases: last.phases
     }
   }

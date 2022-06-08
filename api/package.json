@@ -16,7 +16,8 @@
     "system-test": "mocha test/*system*test.js --timeout=600000 --exit",
     "all-test": "npm run unit-test && npm run system-test",
     "test": "npm -- run unit-test",
-    "start": "npx functions-framework --target=stacks [--signature-type=http]"
+    "start": "npx functions-framework --target=stacks [--signature-type=http]",
+    "debug": "node --inspect node_modules/.bin/functions-framework --target=stacks [--signature-type=http]"
   },
   "dependencies": {
     "@google-cloud/debug-agent": "^5.0.0",

@@ -208,12 +208,24 @@ function stackMeta(yaml, light) {
   let sandboxCommit = {
     value: 'unset'
   }
-  if (yaml.stackParameters) {
-    dnsDomainParam = yaml.stackParameters.find(param => param.name === 'dns.domain') || dnsDomainParam
-    projectId = yaml.stackParameters.find(param => param.name === 'projectId') || projectId
-    userAccount = yaml.stackParameters.find(param => param.name === 'hub.userAccount') || userAccount
-    sandboxDir = yaml.stackParameters.find(param => param.name === 'hub.sandboxDir') || sandboxDir
-    sandboxCommit = yaml.stackParameters.find(param => param.name === 'hub.sandboxCommit') || sandboxCommit
+  const {stackParameters} = yaml;
+  if (stackParameters) {
+    dnsDomainParam = stackParameters.find(({name}) => name === 'dns.domain') ||
+      stackParameters.find(({name}) => name === 'dns.name') ||
+      dnsDomainParam
+    if (dnsDomainParam.value === 'unset' && stateLocation !== 'unknown') {
+      const parts = stateLocation.split('/');
+      const index = parts.indexOf('hub');
+      if (index > 0) {
+        dnsDomainParam.value = parts[index - 1];
+      } else {
+        dnsDomainParam.value = stateLocation;
+      }
+    }
+    projectId = stackParameters.find(({name}) => name === 'projectId') || projectId
+    userAccount = stackParameters.find(({name}) => name === 'hub.userAccount') || userAccount
+    sandboxDir = stackParameters.find(({name}) => name === 'hub.sandboxDir') || sandboxDir
+    sandboxCommit = stackParameters.find(({name}) => name === 'hub.sandboxCommit') || sandboxCommit
   }
   const meta = {
     id: dnsDomainParam.value,

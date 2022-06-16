@@ -23,3 +23,13 @@ go build -o bin/hub-state main.go
 go run main.go
 ```
 
+## Release process
+
+Release process is implemented via [GoReleaser] and GitHub Actions. [GoReleaser] is responsible for building, packing and creation of GitHub releases. GitHub Actions triggers this process when tag with name in [semver](https://semver.org/) format is created. So to trigger Packaging process, for example, you need to run next command:
+
+```bash
+git tag -a v1.0.0 -m "First release"
+git push origin v1.0.0
+```
+
+[GoReleaser]: https://goreleaser.com/

@@ -2,43 +2,33 @@
   "name": "hub-state-api",
   "version": "0.0.1",
   "private": true,
-  "license": "Apache-2.0",
-  "author": "SuperHub Inc.",
+  "license": "MPL 2.0",
+  "author": "EPAM Systems, Inc.",
   "repository": {
     "type": "git",
     "url": "https://github.com/agilestacks/hub-state.git"
   },
+  "main": "index.js",
+  "type": "module",
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=16.0.0"
   },
   "scripts": {
-    "unit-test": "mocha test/index.test.js test/*unit*test.js test/*integration*test.js --timeout=6000 --exit",
-    "system-test": "mocha test/*system*test.js --timeout=600000 --exit",
-    "all-test": "npm run unit-test && npm run system-test",
-    "test": "npm -- run unit-test",
-    "start": "npx functions-framework --target=stacks [--signature-type=http]",
-    "debug": "node --inspect node_modules/.bin/functions-framework --target=stacks [--signature-type=http]"
+    "lint": "eslint *.js",
+    "lint:fix": "eslint *.js --fix",
+    "start": "functions-framework --runtime=nodejs16 --target=scan [--signature-type=http]",
+    "debug": "node --inspect node_modules/.bin/functions-framework --runtime=nodejs16 --target=stacks [--signature-type=http]"
   },
   "dependencies": {
-    "@google-cloud/debug-agent": "^5.0.0",
-    "@google-cloud/functions-framework": "^2.0.0",
-    "@google-cloud/storage": "^5.18.3",
+    "@google-cloud/functions-framework": "^3.1.2",
+    "@google-cloud/storage": "^6.5.2",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
-    "node-gzip": "^1.1.2",
-    "request": "^2.88.2",
-    "unzipper": "^0.10.11",
-    "yamljs": "^0.3.0",
-    "zlib": "^1.0.5"
+    "node-fetch": "^3.2.10",
+    "node-gzip": "^1.1.2"
   },
   "devDependencies": {
-    "@google-cloud/pubsub": "^2.0.0",
-    "gaxios": "^4.3.2",
-    "mocha": "^9.0.0",
-    "moment": "^2.24.0",
-    "promise-retry": "^2.0.0",
-    "sinon": "^13.0.0",
-    "uuid": "^8.0.0",
-    "wait-port": "^0.2.9"
+    "eslint": "^8.25.0",
+    "eslint-config-google": "^0.14.0"
   }
 }

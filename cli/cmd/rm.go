@@ -1,5 +1,5 @@
 // Copyright (c) 2022 EPAM Systems, Inc.
-// 
+//
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -12,7 +12,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/spf13/cobra"
 )
 
@@ -36,24 +35,27 @@ func rm(cmd *cobra.Command, args []string) {
 	text, _ := reader.ReadString('\n')
 	text = strings.Replace(text, "\n", "", -1)
 	if text == "Y" || text == "Yes" {
-		base := BaseURL(StateAPILocation, Project)
-		client := resty.New()
-		resp, err := client.R().
-			Delete(fmt.Sprintf("%s/%s", base, args[0]))
+		req, err := NewRequest()
 		if err != nil {
-			fmt.Println()
 			fmt.Printf("Error: %s", err)
-			fmt.Println()
 			return
 		}
-		if resp.StatusCode() == 404 || resp.Header().Get("Content-Type") == "text/html; charset=UTF-8" {
-			fmt.Println()
-			fmt.Printf("Error: Stack [%s] has not been found", args[0])
-			fmt.Println()
+
+		resp, err := req.
+			Delete(fmt.Sprintf("%s/%s", baseURL(), args[0]))
+		if err != nil {
+			fmt.Printf("Error: %s", err)
 			return
 		}
-		fmt.Println()
-		fmt.Printf("State [%s] has been removed!", args[0])
-		fmt.Println()
+		if resp.IsSuccess() {
+			fmt.Printf("State \"%s\" is removed", args[0])
+			return
+		}
+		if resp.StatusCode() == 404 {
+			fmt.Printf("Error: State \"%s\" not found", args[0])
+			return
+		}
+		fmt.Printf("Error: %s", resp.Status())
+		return
 	}
 }

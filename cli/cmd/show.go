@@ -1,5 +1,5 @@
 // Copyright (c) 2022 EPAM Systems, Inc.
-// 
+//
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -12,7 +12,6 @@ import (
 	"fmt"
 
 	"github.com/fatih/color"
-	"github.com/go-resty/resty/v2"
 	"github.com/rodaine/table"
 	"github.com/spf13/cobra"
 	"github.com/xeonx/timeago"
@@ -33,37 +32,48 @@ func show(cmd *cobra.Command, args []string) {
 	if Project == "" {
 		altProjectSources()
 	}
-	base := BaseURL(StateAPILocation, Project)
-	client := resty.New()
-	resp, err := client.R().
-		Get(fmt.Sprintf("%s/%s", base, args[0]))
+
+	req, err := NewRequest()
+	if err != nil {
+		fmt.Printf("Error: %s", err)
+		return
+	}
+
+	resp, err := req.
+		Get(fmt.Sprintf("%s/%s", baseURL(), args[0]))
 	if err != nil {
 		fmt.Printf("Error: %s", err)
 		fmt.Println()
 		return
 	}
-	if resp.StatusCode() == 404 && Out != JsonO {
-		fmt.Printf("Error: Stack [%s] has not been found", args[0])
-		fmt.Println()
-		return
-	}
-	if Out == JsonO {
-		var pretty bytes.Buffer
-		err = json.Indent(&pretty, resp.Body(), "", "\t")
-		if err != nil {
+
+	if resp.IsSuccess() {
+		if Out == JsonO {
+			var pretty bytes.Buffer
+			err = json.Indent(&pretty, resp.Body(), "", "\t")
+			if err != nil {
+				fmt.Printf("Failed indent json body: %s", err)
+				return
+			}
+			fmt.Println(pretty.String())
 			return
 		}
-		fmt.Println(pretty.String())
+
+		var state State
+		err = json.Unmarshal(resp.Body(), &state)
+		if err != nil {
+			fmt.Printf("Failed unmarshal json body: %s", err)
+			return
+		}
+		tableFmtState(state)
 		return
 	}
-	var state State
-	err = json.Unmarshal(resp.Body(), &state)
-	if err != nil {
-		fmt.Printf("Error: Stack [%s] has not been found", args[0])
-		fmt.Println()
+	if resp.StatusCode() == 404 {
+		fmt.Printf("Error: State \"%s\" not found", args[0])
 		return
 	}
-	tableFmtState(state)
+	fmt.Printf("Error: %s", resp.Status())
+	return
 }
 
 func tableFmtState(state State) {
